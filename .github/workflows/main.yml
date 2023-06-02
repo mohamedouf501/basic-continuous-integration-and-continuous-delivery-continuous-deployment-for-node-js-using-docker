@@ -45,12 +45,15 @@ jobs:
       - name: SSH deploy
         env:
           IMAGE_TAG: ${{ steps.slug.outputs.sha7 }}
+          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{secrets.USER_NAME}}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
             docker stop nodeExpress || true
             docker rm nodeExpress || true
             docker pull $DOCKERHUB_REPO
