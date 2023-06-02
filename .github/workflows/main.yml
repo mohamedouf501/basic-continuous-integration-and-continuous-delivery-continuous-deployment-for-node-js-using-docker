@@ -45,5 +45,5 @@ jobs:
           script: |
             docker stop nodeExpress || true
             docker rm nodeExpress || true
-            docker pull ${{ env.DOCKERHUB_REPO }}
+            docker pull ${{ env.DOCKERHUB_REPO }}:${{ steps.last_commit.outputs.sha }}
             docker run -d --name nodeExpress -p ${{ secrets.PORT }}:3000 ${{ env.DOCKERHUB_REPO }}:${{ steps.last_commit.outputs.sha }}
