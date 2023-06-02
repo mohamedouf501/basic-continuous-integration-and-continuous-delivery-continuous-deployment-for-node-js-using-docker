@@ -29,7 +29,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.DOCKERHUB_REPO }}:${{ github.sha }} 
+          tags: mohamedouf501/nodejs:${{ github.sha }} 
 
   deploy:
     needs: [build]
@@ -45,5 +45,5 @@ jobs:
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
             docker stop nodeExpress || echo true 
             docker rm nodeExpress || echo true
-            docker pull ${{ env.DOCKERHUB_REPO }}:${{ github.sha }}  
-            docker run -d --name nodeExpress -p ${{ secrets.PORT }}:3000 ${{ env.DOCKERHUB_REPO }}:${{ github.sha }} 
+            docker pull mohamedouf501/nodejs:${{ github.sha }}  
+            docker run -d --name nodeExpress -p ${{ secrets.PORT }}:3000 mohamedouf501/nodejs:${{ github.sha }} 
