@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      DOCKERHUB_REPO: ${{secrets.DOCKER_REPO}}
+      DOCKERHUB_REPO: mohamedouf501/nodejs
     steps:
       - name: Get short SHA
         id: slug
