@@ -29,11 +29,11 @@ jobs:
         env:
           IMAGE_TAG: ${{ steps.slug.outputs.sha7 }}
         run: |
-          docker build . -t $DOCKERHUB_REPO:$IMAGE_TAG
+          docker build . -t $IMAGE_TAG
 
       - name: Push Docker Image
         run: |
-          docker push "$DOCKERHUB_REPO:$IMAGE_TAG"
+          docker push $IMAGE_TAG
 
   deploy:
     needs: [build]
@@ -53,5 +53,5 @@ jobs:
           script: |
             docker stop nodeExpress || true
             docker rm nodeExpress || true
-            docker pull "$DOCKERHUB_REPO:$IMAGE_TAG"
-            docker run -d --name nodeExpress -p ${{ secrets.PORT }}:3000 "$DOCKERHUB_REPO:$IMAGE_TAG"
+            docker pull $IMAGE_TAG"
+            docker run -d --name nodeExpress -p ${{ secrets.PORT }}:3000 $IMAGE_TAG
