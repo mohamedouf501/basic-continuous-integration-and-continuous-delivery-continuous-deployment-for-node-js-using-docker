@@ -26,12 +26,10 @@ jobs:
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
-        env:
-          IMAGE_TAG: ${{ steps.last_commit.outputs.sha }}
         with:
           context: .
           push: true
-          tags: $DOCKERHUB_REPO:$IMAGE_TAG
+          tags: $DOCKERHUB_REPO:${{ steps.last_commit.outputs.sha }}
 
 
 
@@ -39,22 +37,14 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - name: Get short SHA
-        id: slug
-        run: echo "::set-output name=sha7::$(echo ${GITHUB_SHA} | cut -c1-7)"
       - name: SSH deploy
-        env:
-          IMAGE_TAG: ${{ steps.last_commit.outputs.sha }}
-          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{secrets.USER_NAME}}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
             docker stop nodeExpress || true
             docker rm nodeExpress || true
             docker pull $DOCKERHUB_REPO
-            docker run -d --name nodeExpress -p ${{ secrets.PORT }}:3000 $DOCKERHUB_REPO
+            docker run -d --name nodeExpress -p ${{ secrets.PORT }}:3000 $DOCKERHUB_REPO:${{ steps.last_commit.outputs.sha }}
