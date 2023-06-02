@@ -12,10 +12,6 @@ jobs:
       DOCKERHUB_REPO: mohamedouf501/nodejs
 
     steps:
-      - name: Get last commit SHA
-        id: last_commit
-        run: echo "::set-output name=sha::$(git rev-parse --short=7 HEAD)"
-
       - name: Checkout code
         uses: actions/checkout@v2 
       - name: Set up QEMU
@@ -35,7 +31,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.DOCKERHUB_REPO }}:${{ steps.last_commit.outputs.sha }}
+          tags: ${{ env.DOCKERHUB_REPO }}:${{ github.sha }} 
 
   deploy:
     needs: [build]
@@ -50,5 +46,5 @@ jobs:
           script: |
             docker stop nodeExpress || true
             docker rm nodeExpress || true
-            docker pull ${{ env.DOCKERHUB_REPO }}:${{ steps.last_commit.outputs.sha }}
-            docker run -d --name nodeExpress -p ${{ secrets.PORT }}:3000 ${{ env.DOCKERHUB_REPO }}:${{ steps.last_commit.outputs.sha }}
+            docker pull ${{ env.DOCKERHUB_REPO }}:${{ github.sha }} 
+            docker run -d --name nodeExpress -p ${{ secrets.PORT }}:3000 ${{ env.DOCKERHUB_REPO }}:${{ github.sha }} 
