@@ -20,10 +20,10 @@ jobs:
 
       - name: Dockerhub Login
         env:
-          DOCKER_USERNMAE: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_TOKEN
+          docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 
       - name: Build Docker Image
         env:
@@ -54,5 +54,3 @@ jobs:
             docker rm nodeExpress || true
             docker pull $DOCKERHUB_REPO:$IMAGE_TAG
             docker run -d --name nodeExpress -p ${{ secrets.PORT }}:3000 $DOCKERHUB_REPO:$IMAGE_TAG
-
-
