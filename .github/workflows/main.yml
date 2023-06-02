@@ -1,0 +1,58 @@
+name: CICD for Nodejs
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_REPO: ${{secrets.DOCKER_REPO}}
+    steps:
+      - name: Get short SHA
+        id: slug
+        run: echo "::set-output name=sha7::$(echo ${GITHUB_SHA} | cut -c1-7)"
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Dockerhub Login
+        env:
+          DOCKER_USERNMAE: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+
+      - name: Build Docker Image
+        env:
+          IMAGE_TAG: ${{ steps.slug.outputs.sha7 }}
+        run: |
+          docker build . -t $DOCKERHUB_REPO:$IMAGE_TAG
+      - name: Push Docker Image
+        run: |
+          docker push $DOCKERHUB_REPO:$IMAGE_TAG
+
+  deploy:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get short SHA
+        id: slug
+        run: echo "::set-output name=sha7::$(echo ${GITHUB_SHA} | cut -c1-7)"
+      - name: SSH deploy
+        env:
+          IMAGE_TAG: ${{ steps.slug.outputs.sha7 }}
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{secrets.USER_NAME}}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            docker stop nodeExpress || true
+            docker rm nodeExpress || true
+            docker pull $DOCKERHUB_REPO:$IMAGE_TAG
+            docker run -d --name nodeExpress -p ${{ secrets.PORT }}:3000 $DOCKERHUB_REPO:$IMAGE_TAG
+
+
