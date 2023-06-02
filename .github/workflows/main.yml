@@ -1,4 +1,4 @@
-name: CICD for Nodejs
+name: CICD for Node.js
 
 on:
   push:
@@ -10,28 +10,27 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKERHUB_REPO: mohamedouf501/nodejs
+
     steps:
       - name: Get last commit SHA
         id: last_commit
         run: echo "::set-output name=sha::$(git rev-parse --short=7 HEAD)"
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2 
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
+      
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: $DOCKERHUB_REPO:${{ steps.last_commit.outputs.sha }}
-
-
+          tags: ${{ env.DOCKERHUB_REPO }}:${{ steps.last_commit.outputs.sha }}
 
   deploy:
     needs: [build]
@@ -41,10 +40,10 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
-          username: ${{secrets.USER_NAME}}
+          username: ${{ secrets.USER_NAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
             docker stop nodeExpress || true
             docker rm nodeExpress || true
-            docker pull $DOCKERHUB_REPO
-            docker run -d --name nodeExpress -p ${{ secrets.PORT }}:3000 $DOCKERHUB_REPO:${{ steps.last_commit.outputs.sha }}
+            docker pull ${{ env.DOCKERHUB_REPO }}
+            docker run -d --name nodeExpress -p ${{ secrets.PORT }}:3000 ${{ env.DOCKERHUB_REPO }}:${{ steps.last_commit.outputs.sha }}
