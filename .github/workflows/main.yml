@@ -45,11 +45,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
-
-            if docker ps -a --format '{{.Names}}' | grep -q "^nodeExpress$"; then
-            docker stop nodeExpress
-            docker rm nodeExpress
-            fi
-            
+            docker stop nodeExpress || echo true 
+            docker rm nodeExpress || echo true
             docker pull ${{ env.DOCKERHUB_REPO }}:${{ github.sha }}  
             docker run -d --name nodeExpress -p ${{ secrets.PORT }}:3000 ${{ env.DOCKERHUB_REPO }}:${{ github.sha }} 
