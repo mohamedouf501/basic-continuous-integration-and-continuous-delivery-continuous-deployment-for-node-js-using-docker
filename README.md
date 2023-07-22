@@ -1,6 +1,6 @@
 # CICD for Node.js
 
-![Node.js Logo]([nodejs-logo.png](http://nodejs.org/images/logos/nodejs.png)) <!-- Replace "nodejs-logo.png" with your logo if desired -->
+![Node.js Logo](http://nodejs.org/images/logos/nodejs.png)<!-- Replace "nodejs-logo.png" with your logo if desired -->
 
 This repository contains a Continuous Integration and Continuous Deployment (CICD) setup for a Node.js application using Docker containers. The CICD pipeline is designed to automate the build and deployment process.
 
